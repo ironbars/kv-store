@@ -1,0 +1,12 @@
+kv-store
+========
+This is a ``toy'' key-value cache server and corresponding test client.
+Currently not production quality; this project is meant for *STUDY*, to examine
+the characteristics of these data structures and the effects of different cache
+replacement algorithms on them.  
+
+As of right now, consider this software to be alpha phase.
+
+/////
+vim:set ts=4 sw=4 syntax=asciidoc tw=80 formatoptions+=t noet spell spelllang=en_us:
+/////

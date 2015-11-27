@@ -17,9 +17,6 @@ void sigchld_handler(int s); //Handle forked processes
 struct addrinfo* get_addr_list(const char *port); //Get list of interfaces
 int prep_socket(struct addrinfo *list, int yes); //Get an open socket
 
-// Generic hashing function
-uint32_t hashkey(char *key);
-
 // Variable declarations
 // Pointer to our key array
 kv_node **keys;

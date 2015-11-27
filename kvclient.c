@@ -3,25 +3,33 @@
 int main(int argc, char **argv)
 {
 	int sockfd;
+	int index;
+	const short NUM_HOSTS = 3;
+	int sockets[NUM_HOSTS], i;
 	unsigned char send_buf[BUF_SIZE], recv_buf[BUF_SIZE], *ptr;
 	struct addrinfo *servinfo;
+	char *hosts[3] = {"pi-host1", "pi-host2", "pi-host3"};
 	char operation[32];
-	char *command;
+	char *command = '\0';
 
-	if(argc != 2) {
-		fprintf(stderr, "Usage: kv-cli <hostname>\n");
-		exit(EXIT_FAILURE);
-	}
+	/*if(argc != 2) {*/
+		/*fprintf(stderr, "Usage: kv-cli <hostname>\n");*/
+		/*exit(EXIT_FAILURE);*/
+	/*}*/
 
-	servinfo = get_addr_list(PORT, argv[1]);
+	for(i = 0; i < NUM_HOSTS; i++) {
 
-	if((sockfd = prep_socket(servinfo)) == -1) {
-		fprintf(stderr, "kv-cli: failed to connect\n");
-		exit(EXIT_FAILURE);
+		servinfo = get_addr_list(PORT, hosts[i]);
+
+		if((sockets[i] = prep_socket(servinfo)) == -1) {
+			fprintf(stderr, "kv-cli: failed to connect\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	printf("Type 'exit' to end\n");
 
+	/* TODO: Implement choice of which server to send to. */
 	while((!command) || strcmp("EXIT", command) != 0) {
 		printf("kv-cli> ");
 		fgets(operation, 100, stdin);
@@ -48,6 +56,9 @@ int main(int argc, char **argv)
 				args->c_key = key;
 				args->i_value = strtol(value, NULL, 0);
 				args->status = KV_PUT;
+				index = get_socket_index(args->c_key);
+				sockfd = sockets[index];
+				printf("Index: %i\n", index);
 
 				ptr = serialize_kv_message(send_buf, args);
 
@@ -92,6 +103,9 @@ int main(int argc, char **argv)
 				args->i_value = 0;
 				args->status = KV_GET;
 				ptr = serialize_kv_message(send_buf, args);
+				index = get_socket_index(args->c_key);
+				sockfd = sockets[index];
+				printf("Index: %i\n", index);
 
 				if(send(sockfd, send_buf, ptr - send_buf, 0) == -1) {
 					free(args);
@@ -135,6 +149,9 @@ int main(int argc, char **argv)
 				args->i_value = 0;
 				args->status = KV_DEL;
 				ptr = serialize_kv_message(send_buf, args);
+				index = get_socket_index(args->c_key);
+				sockfd = sockets[index];
+				printf("Index: %i\n", index);
 
 				if(send(sockfd, send_buf, ptr - send_buf, 0) == -1) {
 					free(args);
@@ -259,3 +276,23 @@ void str_upper(char *c)
 	}
 }
 
+
+int get_socket_index(char *key)
+{
+	int sock_index;
+	int index = hashkey(key) % ARRAYLEN;
+
+	if(0 <= index && index <= FIRST_PARTITION)
+		sock_index = 0;
+
+	else if(FIRST_PARTITION < index && index <= SECOND_PARTITION)
+		sock_index = 1;
+
+	else if(SECOND_PARTITION < index && index <= THIRD_PARTITION)
+		sock_index = 2;
+
+	else
+		sock_index = -1;
+
+	return sock_index;
+}

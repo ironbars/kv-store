@@ -223,22 +223,6 @@ void del(void* args)
 }
 
 
-uint32_t hashkey(char *key)
-{
-	uint32_t hashval = 0; //our hash
-	int i = 0;
-
-	/* Convert our string to an integer */
-	while(hashval < ULONG_MAX && i < strlen(key)) {
-		hashval = hashval << 8;
-		hashval += key[i];
-		i++;
-	}
-
-	return hashval;
-}
-
-
 void sigchld_handler(int s)
 {
 	int saved_errno = errno;

@@ -63,6 +63,9 @@ unsigned char* deserialize_string(unsigned char *buffer, char *value);
 unsigned char* deserialize_kv_status(unsigned char *buffer, kv_status *value);
 unsigned char* deserialize_kv_message(unsigned char *buffer, kv_args *msg);
 
+// Generic hashing function
+uint32_t hashkey(char *key);
+
 enum kv_status {
 	// Key-value status codes
 	KV_OK = 0,

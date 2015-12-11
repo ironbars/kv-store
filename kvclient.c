@@ -29,7 +29,6 @@ int main(int argc, char **argv)
 
 	printf("Type 'exit' to end\n");
 
-	/* TODO: Implement choice of which server to send to. */
 	while((!command) || strcmp("EXIT", command) != 0) {
 		printf("kv-cli> ");
 		fgets(operation, 100, stdin);
